@@ -1,0 +1,37 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  text-align: center;
+  padding: 2rem;
+  background: #f2f2f7;
+}
+
+h1 {
+  color: #0a84ff;
+}
+
+#target {
+  font-size: 2rem;
+  margin: 1.5rem 0;
+}
+
+#status {
+  margin-top: 2rem;
+  padding: 2rem;
+  font-size: 1.8rem;
+  border-radius: 16px;
+  background: #e5e5ea;
+}
+
+.correct {
+  background: #34c759;
+  color: white;
+}
+
+.incorrect {
+  background: #ff3b30;
+  color: white;
+}
+
+.waiting {
+  background: #e5e5ea;
+}

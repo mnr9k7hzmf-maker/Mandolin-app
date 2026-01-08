@@ -1,0 +1,8 @@
+{
+  "name": "Mandolin Trainer",
+  "short_name": "Mandolin",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#0a84ff"
+}
