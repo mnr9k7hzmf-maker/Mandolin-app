@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="style.css" />
   <meta name="theme-color" content="#0a84ff" />
 
-  <!-- iOS PWA support -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
@@ -18,7 +17,10 @@
 
   <div id="target">Tap Start</div>
 
-  <button id="start">Start Practice</button>
+  <div class="buttons">
+    <button id="start">Start</button>
+    <button id="stop" disabled>Stop</button>
+  </div>
 
   <div id="status">Waiting…</div>
 
