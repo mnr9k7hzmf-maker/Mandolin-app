@@ -1,64 +1,59 @@
-const strings = [
-  { note: "G3", freq: 196.0 },
-  { note: "D4", freq: 293.66 },
-  { note: "A4", freq: 440.0 },
-  { note: "E5", freq: 659.25 }
-];
+const strings = ["G3", "D4", "A4", "E5"];
+const toleranceCents = 30;
 
-const targetDiv = document.getElementById("target");
-const statusDiv = document.getElementById("status");
+let mode = "practice";
+let targetNote = null;
+let listening = false;
+let score = 0;
+let timeLeft = 60;
+
+const info = document.getElementById("info");
+const status = document.getElementById("status");
 const startBtn = document.getElementById("start");
 const stopBtn = document.getElementById("stop");
 
-let audioContext;
-let analyser;
-let data;
-let target;
-let stream;
-let listening = false;
-let animationId;
+document.querySelectorAll(".modes button").forEach(btn => {
+  btn.onclick = () => mode = btn.dataset.mode;
+});
 
-startBtn.addEventListener("click", startPractice);
-stopBtn.addEventListener("click", stopPractice);
+startBtn.onclick = start;
+stopBtn.onclick = stop;
 
-async function startPractice() {
+let audioContext, analyser, data, stream, raf;
+
+async function start() {
   startBtn.disabled = true;
   stopBtn.disabled = false;
   listening = true;
 
-  pickNewTarget();
-
   audioContext = new AudioContext();
   stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  const source = audioContext.createMediaStreamSource(stream);
+  const src = audioContext.createMediaStreamSource(stream);
 
   analyser = audioContext.createAnalyser();
   analyser.fftSize = 2048;
   data = new Float32Array(analyser.fftSize);
+  src.connect(analyser);
 
-  source.connect(analyser);
+  if (mode === "practice" || mode === "game") pickTarget();
+  if (mode === "game") startGameTimer();
+
   listen();
 }
 
-function stopPractice() {
+function stop() {
   listening = false;
+  cancelAnimationFrame(raf);
+  stream.getTracks().forEach(t => t.stop());
+  audioContext.close();
   startBtn.disabled = false;
   stopBtn.disabled = true;
-
-  if (animationId) cancelAnimationFrame(animationId);
-  if (stream) stream.getTracks().forEach(track => track.stop());
-  if (audioContext) audioContext.close();
-
-  targetDiv.textContent = "Tap Start";
-  statusDiv.textContent = "Stopped";
-  statusDiv.className = "waiting";
+  status.textContent = "Stopped";
 }
 
-function pickNewTarget() {
-  target = strings[Math.floor(Math.random() * strings.length)];
-  targetDiv.textContent = `Play: ${target.note} (Open String)`;
-  statusDiv.textContent = "Listening…";
-  statusDiv.className = "waiting";
+function pickTarget() {
+  targetNote = strings[Math.floor(Math.random() * strings.length)];
+  info.textContent = "Play: " + targetNote;
 }
 
 function listen() {
@@ -68,19 +63,36 @@ function listen() {
   const freq = autoCorrelate(data, audioContext.sampleRate);
 
   if (freq !== -1) {
-    const detected = frequencyToNote(freq);
+    const note = frequencyToNote(freq);
 
-    if (detected === target.note) {
-      statusDiv.textContent = `Correct ✔ (${detected})`;
-      statusDiv.className = "correct";
-      setTimeout(() => {
-        if (listening) pickNewTarget();
-      }, 800);
-    } else {
-      statusDiv.textContent = `Heard ${detected}`;
-      statusDiv.className = "incorrect";
+    if (mode === "tuner") {
+      info.textContent = "Heard: " + note;
+    }
+
+    if ((mode === "practice" || mode === "game") && note === targetNote) {
+      status.textContent = "Correct ✔";
+      status.className = "correct";
+      if (mode === "game") score++;
+      pickTarget();
+    } else if (mode !== "tuner") {
+      status.textContent = "Try Again";
+      status.className = "incorrect";
     }
   }
 
-  animationId = requestAnimationFrame(listen);
+  raf = requestAnimationFrame(listen);
+}
+
+function startGameTimer() {
+  score = 0;
+  timeLeft = 60;
+  const timer = setInterval(() => {
+    timeLeft--;
+    info.textContent = `Time: ${timeLeft}s | Score: ${score}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      stop();
+      info.textContent = `Final Score: ${score}`;
+    }
+  }, 1000);
 }
