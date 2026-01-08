@@ -10,21 +10,28 @@
   <meta name="theme-color" content="#0a84ff" />
 
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 <body>
-  <h1>🎻 Mandolin Trainer</h1>
 
-  <div id="target">Tap Start</div>
+<h1>🎻 Mandolin Trainer</h1>
 
-  <div class="buttons">
-    <button id="start">Start</button>
-    <button id="stop" disabled>Stop</button>
-  </div>
+<div class="modes">
+  <button data-mode="practice">Practice</button>
+  <button data-mode="tuner">Tuner</button>
+  <button data-mode="game">Game</button>
+</div>
 
-  <div id="status">Waiting…</div>
+<div id="info"></div>
+<div id="fretboard"></div>
 
-  <script src="pitch.js"></script>
-  <script src="app.js"></script>
+<div class="controls">
+  <button id="start">Start</button>
+  <button id="stop" disabled>Stop</button>
+</div>
+
+<div id="status">Waiting…</div>
+
+<script src="pitch.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
