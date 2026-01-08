@@ -8,18 +8,28 @@ const strings = [
 const targetDiv = document.getElementById("target");
 const statusDiv = document.getElementById("status");
 const startBtn = document.getElementById("start");
+const stopBtn = document.getElementById("stop");
 
 let audioContext;
 let analyser;
 let data;
 let target;
+let stream;
+let listening = false;
+let animationId;
 
-startBtn.addEventListener("click", async () => {
+startBtn.addEventListener("click", startPractice);
+stopBtn.addEventListener("click", stopPractice);
+
+async function startPractice() {
   startBtn.disabled = true;
+  stopBtn.disabled = false;
+  listening = true;
+
   pickNewTarget();
 
   audioContext = new AudioContext();
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const source = audioContext.createMediaStreamSource(stream);
 
   analyser = audioContext.createAnalyser();
@@ -28,7 +38,21 @@ startBtn.addEventListener("click", async () => {
 
   source.connect(analyser);
   listen();
-});
+}
+
+function stopPractice() {
+  listening = false;
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+
+  if (animationId) cancelAnimationFrame(animationId);
+  if (stream) stream.getTracks().forEach(track => track.stop());
+  if (audioContext) audioContext.close();
+
+  targetDiv.textContent = "Tap Start";
+  statusDiv.textContent = "Stopped";
+  statusDiv.className = "waiting";
+}
 
 function pickNewTarget() {
   target = strings[Math.floor(Math.random() * strings.length)];
@@ -38,6 +62,8 @@ function pickNewTarget() {
 }
 
 function listen() {
+  if (!listening) return;
+
   analyser.getFloatTimeDomainData(data);
   const freq = autoCorrelate(data, audioContext.sampleRate);
 
@@ -47,12 +73,14 @@ function listen() {
     if (detected === target.note) {
       statusDiv.textContent = `Correct ✔ (${detected})`;
       statusDiv.className = "correct";
-      setTimeout(pickNewTarget, 1000);
+      setTimeout(() => {
+        if (listening) pickNewTarget();
+      }, 800);
     } else {
       statusDiv.textContent = `Heard ${detected}`;
       statusDiv.className = "incorrect";
     }
   }
 
-  requestAnimationFrame(listen);
+  animationId = requestAnimationFrame(listen);
 }
