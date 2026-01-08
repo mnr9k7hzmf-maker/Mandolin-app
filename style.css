@@ -1,64 +1,64 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   text-align: center;
-  padding: 2rem;
   background: #f2f2f7;
+  padding: 1.5rem;
 }
 
 h1 {
   color: #0a84ff;
 }
 
-#target {
-  font-size: 2rem;
-  margin: 1.5rem 0;
-}
-
-.buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-button {
-  font-size: 1.1rem;
-  padding: 0.75rem 1.5rem;
+.modes button {
+  margin: 0.3rem;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
   border: none;
+  background: #ddd;
+}
+
+.controls {
+  margin-top: 1rem;
+}
+
+.controls button {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
   border-radius: 12px;
+  border: none;
 }
 
-#start {
-  background: #34c759;
-  color: white;
-}
+#start { background: #34c759; color: white; }
+#stop { background: #ff3b30; color: white; }
 
-#stop {
-  background: #ff3b30;
-  color: white;
-}
-
-#stop:disabled {
-  opacity: 0.5;
+#info {
+  font-size: 1.8rem;
+  margin: 1rem 0;
 }
 
 #status {
-  margin-top: 2rem;
-  padding: 2rem;
-  font-size: 1.8rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  font-size: 1.6rem;
   border-radius: 16px;
   background: #e5e5ea;
 }
 
-.correct {
-  background: #34c759;
-  color: white;
+.correct { background: #34c759; color: white; }
+.incorrect { background: #ff3b30; color: white; }
+
+#fretboard {
+  margin: 1rem auto;
+  max-width: 300px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
 }
 
-.incorrect {
-  background: #ff3b30;
-  color: white;
+.fret {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
 }
-
-.waiting {
-  background: #e5e5ea;
+.active {
+  background: #0a84ff;
+  color: white;
 }
