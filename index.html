@@ -8,7 +8,6 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
   <meta name="theme-color" content="#0a84ff" />
-
   <meta name="apple-mobile-web-app-capable" content="yes" />
 </head>
 <body>
@@ -21,9 +20,46 @@
   <button data-mode="game">Game</button>
 </div>
 
-<!-- NEW: separate display areas -->
+<div class="settings">
+  <label>
+    Difficulty:
+    <select id="difficulty">
+      <option value="beginner">Beginner</option>
+      <option value="intermediate">Intermediate</option>
+      <option value="advanced">Advanced</option>
+    </select>
+  </label>
+
+  <label>
+    Scale:
+    <select id="scaleSelect">
+      <option value="chromatic">Chromatic</option>
+      <option value="g">G Major</option>
+      <option value="d">D Major</option>
+      <option value="a">A Major</option>
+    </select>
+  </label>
+
+  <label>
+    String:
+    <select id="stringSelect">
+      <option value="all">All</option>
+      <option value="G">G</option>
+      <option value="D">D</option>
+      <option value="A">A</option>
+      <option value="E">E</option>
+    </select>
+  </label>
+
+  <label>
+    Max Fret:
+    <input type="range" id="fretRange" min="0" max="6" />
+    <span id="fretValue"></span>
+  </label>
+</div>
+
 <div id="targetNote"></div>
-<div id="gameInfo"></div>
+<div id="instruction"></div>
 
 <div id="fretboard"></div>
 
