@@ -1,13 +1,14 @@
 const strings = ["G3", "D4", "A4", "E5"];
-const toleranceCents = 30;
 
 let mode = "practice";
 let targetNote = null;
 let listening = false;
 let score = 0;
 let timeLeft = 60;
+let gameTimer = null;
 
-const info = document.getElementById("info");
+const targetDiv = document.getElementById("targetNote");
+const gameInfoDiv = document.getElementById("gameInfo");
 const status = document.getElementById("status");
 const startBtn = document.getElementById("start");
 const stopBtn = document.getElementById("stop");
@@ -35,8 +36,15 @@ async function start() {
   data = new Float32Array(analyser.fftSize);
   src.connect(analyser);
 
-  if (mode === "practice" || mode === "game") pickTarget();
-  if (mode === "game") startGameTimer();
+  if (mode === "practice" || mode === "game") {
+    pickTarget();
+  }
+
+  if (mode === "game") {
+    startGameTimer();
+  } else {
+    gameInfoDiv.textContent = "";
+  }
 
   listen();
 }
@@ -44,16 +52,24 @@ async function start() {
 function stop() {
   listening = false;
   cancelAnimationFrame(raf);
+
+  if (gameTimer) clearInterval(gameTimer);
+
   stream.getTracks().forEach(t => t.stop());
   audioContext.close();
+
   startBtn.disabled = false;
   stopBtn.disabled = true;
+
+  targetDiv.textContent = "";
+  gameInfoDiv.textContent = "";
   status.textContent = "Stopped";
+  status.className = "";
 }
 
 function pickTarget() {
   targetNote = strings[Math.floor(Math.random() * strings.length)];
-  info.textContent = "Play: " + targetNote;
+  targetDiv.textContent = "Play: " + targetNote;
 }
 
 function listen() {
@@ -66,13 +82,15 @@ function listen() {
     const note = frequencyToNote(freq);
 
     if (mode === "tuner") {
-      info.textContent = "Heard: " + note;
+      targetDiv.textContent = "Heard: " + note;
     }
 
     if ((mode === "practice" || mode === "game") && note === targetNote) {
       status.textContent = "Correct ✔";
       status.className = "correct";
+
       if (mode === "game") score++;
+
       pickTarget();
     } else if (mode !== "tuner") {
       status.textContent = "Try Again";
@@ -86,13 +104,18 @@ function listen() {
 function startGameTimer() {
   score = 0;
   timeLeft = 60;
-  const timer = setInterval(() => {
+
+  gameInfoDiv.textContent = `Time: ${timeLeft}s | Score: ${score}`;
+
+  gameTimer = setInterval(() => {
     timeLeft--;
-    info.textContent = `Time: ${timeLeft}s | Score: ${score}`;
+    gameInfoDiv.textContent = `Time: ${timeLeft}s | Score: ${score}`;
+
     if (timeLeft <= 0) {
-      clearInterval(timer);
+      clearInterval(gameTimer);
       stop();
-      info.textContent = `Final Score: ${score}`;
+      targetDiv.textContent = "Game Over";
+      gameInfoDiv.textContent = `Final Score: ${score}`;
     }
   }, 1000);
 }
