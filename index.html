@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mandolin Trainer</title>
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="style.css" />
-  <meta name="theme-color" content="#0a84ff" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -22,11 +20,10 @@
 
 <div class="settings">
   <label>
-    Difficulty:
-    <select id="difficulty">
-      <option value="beginner">Beginner</option>
-      <option value="intermediate">Intermediate</option>
-      <option value="advanced">Advanced</option>
+    Instrument:
+    <select id="instrumentSelect">
+      <option value="mandolin">Mandolin</option>
+      <option value="bass">Electric Bass</option>
     </select>
   </label>
 
@@ -44,17 +41,13 @@
     String:
     <select id="stringSelect">
       <option value="all">All</option>
-      <option value="G">G</option>
-      <option value="D">D</option>
-      <option value="A">A</option>
-      <option value="E">E</option>
     </select>
   </label>
 
   <label>
     Max Fret:
-    <input type="range" id="fretRange" min="0" max="6" />
-    <span id="fretValue"></span>
+    <input type="range" id="fretRange" min="1" max="6" value="6">
+    <span id="fretValue">6</span>
   </label>
 </div>
 
@@ -65,10 +58,10 @@
 
 <div class="controls">
   <button id="start">Start</button>
-  <button id="stop" disabled>Stop</button>
+  <button id="stop">Stop</button>
 </div>
 
-<div id="status">Waiting…</div>
+<div id="status"></div>
 
 <script src="pitch.js"></script>
 <script src="app.js"></script>
