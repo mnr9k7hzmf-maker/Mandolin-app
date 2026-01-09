@@ -116,7 +116,6 @@ function buildFretboard() {
 
       const dot = document.createElement("div");
       dot.className = "dot";
-      dot.textContent = inst.fingers[Math.min(fret-1, inst.fingers.length-1)];
 
       cell.appendChild(dot);
       row.appendChild(cell);
