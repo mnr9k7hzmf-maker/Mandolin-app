@@ -5,25 +5,85 @@ body {
   padding: 1.5rem;
 }
 
-h1 {
-  color: #0a84ff;
-}
+h1 { color: #0a84ff; }
 
 .modes button {
   margin: 0.3rem;
   padding: 0.6rem 1rem;
   border-radius: 10px;
   border: none;
-  background: #ddd;
 }
 
-.controls {
+.settings {
+  max-width: 320px;
+  margin: 1rem auto;
+  text-align: left;
+}
+
+.settings label {
+  display: block;
+  margin-bottom: 0.6rem;
+}
+
+#targetNote {
+  font-size: 2rem;
   margin-top: 1rem;
+}
+
+#instruction {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== FRETBOARD ===== */
+
+#fretboard {
+  max-width: 360px;
+  margin: 1rem auto;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+
+.string-label {
+  font-weight: bold;
+  line-height: 32px;
+}
+
+/* fret cell */
+.fret {
+  height: 32px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* dot */
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+/* scale note */
+.dot.scale {
+  border-color: #0a84ff;
+  opacity: 0.4;
+}
+
+/* target note */
+.dot.active {
+  background: #0a84ff;
+  border-color: #0a84ff;
+  opacity: 1;
 }
 
 .controls button {
   padding: 0.7rem 1.5rem;
-  font-size: 1rem;
   border-radius: 12px;
   border: none;
 }
@@ -31,34 +91,13 @@ h1 {
 #start { background: #34c759; color: white; }
 #stop { background: #ff3b30; color: white; }
 
-#info {
-  font-size: 1.8rem;
-  margin: 1rem 0;
-}
-
 #status {
   margin-top: 1.5rem;
-  padding: 1.5rem;
-  font-size: 1.6rem;
+  padding: 1.2rem;
+  font-size: 1.4rem;
   border-radius: 16px;
   background: #e5e5ea;
 }
 
 .correct { background: #34c759; color: white; }
 .incorrect { background: #ff3b30; color: white; }
-
-#fretboard {
-  margin: 1rem auto;
-  max-width: 300px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.fret {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-}
-.active {
-  background: #0a84ff;
-  color: white;
-}
