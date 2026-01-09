@@ -1,28 +1,30 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  text-align: center;
   background: #f2f2f7;
+  text-align: center;
   padding: 1.5rem;
 }
 
-h1 { color: #0a84ff; }
+h1 {
+  color: #0a84ff;
+}
 
 .modes button {
   margin: 0.3rem;
   padding: 0.6rem 1rem;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
 }
 
 .settings {
-  max-width: 320px;
+  max-width: 340px;
   margin: 1rem auto;
   text-align: left;
 }
 
 .settings label {
   display: block;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.7rem;
 }
 
 #targetNote {
@@ -31,21 +33,21 @@ h1 { color: #0a84ff; }
 }
 
 #instruction {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
 }
 
 /* =====================
-   FRETBOARD (FIXED)
+   FRETBOARD
 ===================== */
 
 .fretboard {
   width: 100%;
-  max-width: 360px;   /* 👈 prevents stretching */
+  max-width: 360px;
   margin: 1.5rem auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;          /* space between strings */
+  gap: 10px;
 }
 
 .string-row {
@@ -60,36 +62,43 @@ h1 { color: #0a84ff; }
   text-align: center;
 }
 
-/* fret cell */
 .fret {
-  aspect-ratio: 1 / 1;   /* 👈 perfect squares */
+  aspect-ratio: 1 / 1;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background: #fff;
+  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* dot */
 .dot {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   border: 2px solid transparent;
+  font-size: 0.7rem;
+  line-height: 14px;
 }
 
-/* scale note */
 .dot.scale {
   border-color: #0a84ff;
-  opacity: 0.35;
+  opacity: 0.4;
 }
 
-/* target note */
 .dot.active {
   background: #0a84ff;
-  border-color: #0a84ff;
+  color: white;
   opacity: 1;
+}
+
+/* Bass scaling */
+.fretboard[data-instrument="bass"] {
+  max-width: 420px;
+}
+
+.fretboard[data-instrument="bass"] .fret {
+  aspect-ratio: 1.3 / 1;
 }
 
 /* =====================
@@ -98,7 +107,7 @@ h1 { color: #0a84ff; }
 
 .controls button {
   padding: 0.7rem 1.5rem;
-  border-radius: 12px;
+  border-radius: 14px;
   border: none;
 }
 
@@ -106,11 +115,9 @@ h1 { color: #0a84ff; }
 #stop { background: #ff3b30; color: white; }
 
 #status {
-  margin-top: 1.5rem;
-  padding: 1.2rem;
-  font-size: 1.4rem;
-  border-radius: 16px;
-  background: #e5e5ea;
+  margin-top: 1.2rem;
+  padding: 1rem;
+  border-radius: 14px;
 }
 
 .correct { background: #34c759; color: white; }
