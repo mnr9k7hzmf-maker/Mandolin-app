@@ -35,26 +35,36 @@ h1 { color: #0a84ff; }
   margin-bottom: 0.5rem;
 }
 
-/* ===== FRETBOARD ===== */
+/* =====================
+   FRETBOARD (FIXED)
+===================== */
 
-#fretboard {
-  max-width: 360px;
-  margin: 1rem auto;
+.fretboard {
+  width: 100%;
+  max-width: 360px;   /* 👈 prevents stretching */
+  margin: 1.5rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;          /* space between strings */
+}
+
+.string-row {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: 32px repeat(6, 1fr);
   gap: 6px;
+  align-items: center;
 }
 
 .string-label {
   font-weight: bold;
-  line-height: 32px;
+  text-align: center;
 }
 
 /* fret cell */
 .fret {
-  height: 32px;
+  aspect-ratio: 1 / 1;   /* 👈 perfect squares */
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #fff;
   display: flex;
   align-items: center;
@@ -72,7 +82,7 @@ h1 { color: #0a84ff; }
 /* scale note */
 .dot.scale {
   border-color: #0a84ff;
-  opacity: 0.4;
+  opacity: 0.35;
 }
 
 /* target note */
@@ -81,6 +91,10 @@ h1 { color: #0a84ff; }
   border-color: #0a84ff;
   opacity: 1;
 }
+
+/* =====================
+   CONTROLS
+===================== */
 
 .controls button {
   padding: 0.7rem 1.5rem;
