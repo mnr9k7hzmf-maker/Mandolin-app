@@ -37,11 +37,6 @@ let mode = "practice";
 let notes = [];
 let target = null;
 
-let listening = false;
-let score = 0;
-let timeLeft = 60;
-let timer = null;
-
 /* ======================
    DOM
 ====================== */
@@ -49,93 +44,72 @@ let timer = null;
 const fretboard = document.getElementById("fretboard");
 const targetDiv = document.getElementById("targetNote");
 const instructionDiv = document.getElementById("instruction");
-const status = document.getElementById("status");
-
-const fretRange = document.getElementById("fretRange");
-const fretValue = document.getElementById("fretValue");
-const scaleSelect = document.getElementById("scaleSelect");
-const stringSelect = document.getElementById("stringSelect");
-const difficultySelect = document.getElementById("difficulty");
-
-const startBtn = document.getElementById("start");
-const stopBtn = document.getElementById("stop");
 
 /* ======================
-   SETTINGS UI
+   INIT
 ====================== */
-
-fretRange.oninput = e => update({ maxFret: +e.target.value });
-scaleSelect.onchange = e => update({ scale: e.target.value });
-stringSelect.onchange = e => update({ string: e.target.value });
-difficultySelect.onchange = e => applyPreset(e.target.value);
-
-document.querySelectorAll(".modes button").forEach(btn => {
-  btn.onclick = () => mode = btn.dataset.mode;
-});
-
-startBtn.onclick = start;
-stopBtn.onclick = stop;
-
-function applyPreset(level) {
-  update({ difficulty: level, ...presets[level] });
-}
-
-function update(changes) {
-  settings = { ...settings, ...changes };
-  localStorage.setItem("mandolinSettings", JSON.stringify(settings));
-  syncUI();
-  rebuild();
-}
-
-function syncUI() {
-  fretRange.value = settings.maxFret;
-  fretValue.textContent = settings.maxFret;
-  scaleSelect.value = settings.scale;
-  stringSelect.value = settings.string;
-  difficultySelect.value = settings.difficulty;
-}
 
 syncUI();
 rebuild();
 
 /* ======================
-   BUILD NOTES + BOARD
+   BUILD NOTES
+   ❌ Excludes fret 0
 ====================== */
 
 function rebuild() {
-  buildNotes();
+  notes = [];
+
+  Object.entries(mandolinMap).forEach(([string, frets]) => {
+    if (settings.string !== "all" && settings.string !== string) return;
+
+    frets.forEach((note, fret) => {
+      if (fret === 0) return; // ❌ never use open string
+
+      if (fret > settings.maxFret) return;
+
+      if (settings.scale !== "chromatic") {
+        const pitch = note.replace(/[0-9]/g, "");
+        if (!scales[settings.scale].includes(pitch)) return;
+      }
+
+      notes.push({
+        string,
+        fret,           // REAL fret number
+        note
+      });
+    });
+  });
+
   buildFretboard();
   pickTarget();
 }
 
-function buildNotes() {
-  notes = [];
-  Object.entries(mandolinMap).forEach(([string, frets]) => {
-    if (settings.string !== "all" && settings.string !== string) return;
-
-    frets.slice(0, settings.maxFret + 1).forEach((note, fret) => {
-      if (settings.scale !== "chromatic") {
-        const pitch = note.replace(/[0-9]/g,"");
-        if (!scales[settings.scale].includes(pitch)) return;
-      }
-      notes.push({ string, fret, note });
-    });
-  });
-}
+/* ======================
+   BUILD FRETBOARD
+   ❌ Does NOT show fret 0
+====================== */
 
 function buildFretboard() {
   fretboard.innerHTML = "";
+
   Object.entries(mandolinMap).forEach(([string, frets]) => {
     fretboard.appendChild(label(string));
-    frets.slice(0, settings.maxFret + 1).forEach(note => {
+
+    frets.forEach((note, fret) => {
+      if (fret === 0) return; // ❌ hide open string
+      if (fret > settings.maxFret) return;
+
       const cell = document.createElement("div");
       cell.className = "fret";
+      cell.dataset.string = string;
+      cell.dataset.fret = fret;
 
       const dot = document.createElement("div");
       dot.className = "dot";
 
       if (settings.scale !== "chromatic") {
-        const pitch = note.replace(/[0-9]/g,"");
+        const pitch = note.replace(/[0-9]/g, "");
         if (scales[settings.scale].includes(pitch)) {
           dot.classList.add("scale");
         }
@@ -160,109 +134,26 @@ function label(text) {
 
 function pickTarget() {
   if (!notes.length) return;
+
   target = notes[Math.floor(Math.random() * notes.length)];
   targetDiv.textContent = "Play: " + target.note;
-  instructionDiv.textContent = `String: ${target.string} | Fret: ${target.fret}`;
+  instructionDiv.textContent =
+    `String: ${target.string} | Fret: ${target.fret}`;
+
   highlightTarget();
 }
 
 function highlightTarget() {
-  document.querySelectorAll(".dot").forEach(d => d.classList.remove("active"));
+  document.querySelectorAll(".dot").forEach(d =>
+    d.classList.remove("active")
+  );
 
-  let index = 0;
-  Object.entries(mandolinMap).forEach(([string, frets]) => {
-    frets.slice(0, settings.maxFret + 1).forEach((_, fret) => {
-      if (
-        string === target.string &&
-        fret === target.fret
-      ) {
-        fretboard.querySelectorAll(".dot")[index].classList.add("active");
-      }
-      index++;
-    });
+  document.querySelectorAll(".fret").forEach(cell => {
+    if (
+      cell.dataset.string === target.string &&
+      Number(cell.dataset.fret) === target.fret
+    ) {
+      cell.querySelector(".dot").classList.add("active");
+    }
   });
-}
-
-/* ======================
-   AUDIO ENGINE
-====================== */
-
-let audioCtx, analyser, buffer, stream, raf;
-
-async function start() {
-  if (listening) return;
-  listening = true;
-  startBtn.disabled = true;
-  stopBtn.disabled = false;
-
-  audioCtx = new AudioContext();
-  stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-  const source = audioCtx.createMediaStreamSource(stream);
-  analyser = audioCtx.createAnalyser();
-  analyser.fftSize = 2048;
-  buffer = new Float32Array(analyser.fftSize);
-
-  source.connect(analyser);
-
-  if (mode === "game") startGame();
-
-  listen();
-}
-
-function stop() {
-  listening = false;
-  cancelAnimationFrame(raf);
-  if (timer) clearInterval(timer);
-
-  if (stream) stream.getTracks().forEach(t => t.stop());
-  if (audioCtx) audioCtx.close();
-
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
-  status.textContent = "Stopped";
-}
-
-function listen() {
-  if (!listening) return;
-
-  analyser.getFloatTimeDomainData(buffer);
-  const freq = autoCorrelate(buffer, audioCtx.sampleRate);
-
-  if (freq !== -1) {
-    const note = frequencyToNote(freq);
-
-    if (mode === "tuner") {
-      targetDiv.textContent = "Heard: " + note;
-    } else if (note === target.note) {
-      status.textContent = "Correct ✔";
-      status.className = "correct";
-      if (mode === "game") score++;
-      pickTarget();
-    } else {
-      status.textContent = "Try Again";
-      status.className = "incorrect";
-    }
-  }
-
-  raf = requestAnimationFrame(listen);
-}
-
-/* ======================
-   GAME MODE
-====================== */
-
-function startGame() {
-  score = 0;
-  timeLeft = 60;
-
-  timer = setInterval(() => {
-    timeLeft--;
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      stop();
-      targetDiv.textContent = "Game Over";
-      instructionDiv.textContent = `Score: ${score}`;
-    }
-  }, 1000);
 }
