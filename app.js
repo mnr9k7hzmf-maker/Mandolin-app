@@ -1,48 +1,240 @@
-/*************************
- * SHARED APP ENGINE
- * Page-driven (instrument + mode)
- *************************/
+/********************************
+ * SINGLE PAGE FRET TRAINER
+ * iOS + GitHub Pages Safe
+ ********************************/
 
 /* ======================
-   PAGE CONFIG
+   INSTRUMENT DATA
 ====================== */
 
-const instrument = document.body.dataset.instrument;
-const mode = document.body.dataset.mode;
+const instruments = {
+  mandolin: {
+    strings: ["G", "D", "A", "E"],
+    tuning: {
+      G: ["G3","G#3","A3","A#3","B3","C4","C#4"],
+      D: ["D4","D#4","E4","F4","F#4","G4","G#4"],
+      A: ["A4","A#4","B4","C5","C#5","D5","D#5"],
+      E: ["E5","F5","F#5","G5","G#5","A5","A#5"]
+    }
+  },
+  bass: {
+    strings: ["E", "A", "D", "G"],
+    tuning: {
+      E: ["E1","F1","F#1","G1","G#1","A1","A#1"],
+      A: ["A1","A#1","B1","C2","C#2","D2","D#2"],
+      D: ["D2","D#2","E2","F2","F#2","G2","G#2"],
+      G: ["G2","G#2","A2","A#2","B2","C3","C#3"]
+    }
+  }
+};
+
+const scales = {
+  chromatic: null,
+  g: ["G","A","B","C","D","E","F#"],
+  d: ["D","E","F#","G","A","B","C#"],
+  a: ["A","B","C#","D","E","F#","G#"]
+};
 
 /* ======================
    STATE
 ====================== */
 
+let instrument = "mandolin";
+let mode = null;
+
+let settings = {
+  scale: "chromatic",
+  maxFret: 6
+};
+
+let notes = [];
+let target = null;
+
 let listening = false;
 let audioCtx, analyser, buffer, stream, raf;
 
 /* ======================
-   DOM (SAFE LOOKUPS)
+   DOM
 ====================== */
 
+const screens = document.querySelectorAll(".screen");
+
+const instrumentSelect = document.getElementById("instrumentSelect");
+const scaleSelect = document.getElementById("scaleSelect");
+const fretRange = document.getElementById("fretRange");
+const fretValue = document.getElementById("fretValue");
+
 const targetDiv = document.getElementById("targetNote");
+const instructionDiv = document.getElementById("instruction");
 const statusDiv = document.getElementById("status");
+const fretboard = document.getElementById("fretboard");
+const modeTitle = document.getElementById("modeTitle");
+
 const startBtn = document.getElementById("start");
 const stopBtn = document.getElementById("stop");
 
 /* ======================
-   EVENTS
+   NAVIGATION
 ====================== */
 
-if (startBtn) startBtn.onclick = startListening;
-if (stopBtn) stopBtn.onclick = stopListening;
+function showScreen(id) {
+  screens.forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+document.querySelectorAll(".mode-buttons button").forEach(btn => {
+  btn.onclick = () => {
+    mode = btn.dataset.mode;
+    showTrainer();
+  };
+});
+
+document.querySelectorAll(".back").forEach(btn => {
+  btn.onclick = () => {
+    stopListening();
+    showScreen("home");
+  };
+});
 
 /* ======================
-   AUDIO ENGINE
+   MODE SETUP
 ====================== */
+
+instrumentSelect.onchange = e => {
+  instrument = e.target.value;
+};
+
+scaleSelect.onchange = e => {
+  settings.scale = e.target.value;
+  rebuild();
+};
+
+fretRange.oninput = e => {
+  settings.maxFret = Number(e.target.value);
+  fretValue.textContent = settings.maxFret;
+  rebuild();
+};
+
+function showTrainer() {
+  stopListening();
+
+  if (mode === "tuner") {
+    showScreen("tuner");
+    targetDiv.textContent = "—";
+    statusDiv.textContent = "Listening…";
+    return;
+  }
+
+  modeTitle.textContent =
+    `${instrument.charAt(0).toUpperCase() + instrument.slice(1)} ${mode}`;
+
+  showScreen("trainer");
+  rebuild();
+}
+
+/* ======================
+   NOTE GENERATION
+====================== */
+
+function rebuild() {
+  buildNotes();
+  buildFretboard();
+  pickTarget();
+}
+
+function buildNotes() {
+  notes = [];
+  const inst = instruments[instrument];
+
+  inst.strings.forEach(string => {
+    inst.tuning[string].forEach((note, fret) => {
+      if (fret === 0 || fret > settings.maxFret) return;
+
+      if (settings.scale !== "chromatic") {
+        const pitch = note.replace(/[0-9]/g, "");
+        if (!scales[settings.scale].includes(pitch)) return;
+      }
+
+      notes.push({ string, fret, note });
+    });
+  });
+}
+
+/* ======================
+   FRETBOARD
+====================== */
+
+function buildFretboard() {
+  fretboard.innerHTML = "";
+  const inst = instruments[instrument];
+
+  inst.strings.forEach(string => {
+    const row = document.createElement("div");
+    row.className = "string-row";
+
+    const label = document.createElement("div");
+    label.className = "string-label";
+    label.textContent = string;
+    row.appendChild(label);
+
+    inst.tuning[string].forEach((note, fret) => {
+      if (fret === 0 || fret > settings.maxFret) return;
+
+      const cell = document.createElement("div");
+      cell.className = "fret";
+      cell.dataset.string = string;
+      cell.dataset.fret = fret;
+
+      const dot = document.createElement("div");
+      dot.className = "dot";
+
+      cell.appendChild(dot);
+      row.appendChild(cell);
+    });
+
+    fretboard.appendChild(row);
+  });
+}
+
+/* ======================
+   TARGET
+====================== */
+
+function pickTarget() {
+  if (!notes.length) return;
+
+  target = notes[Math.floor(Math.random() * notes.length)];
+  targetDiv.textContent = `Play: ${target.note}`;
+  instructionDiv.textContent =
+    `String: ${target.string} | Fret: ${target.fret}`;
+
+  document.querySelectorAll(".dot").forEach(d =>
+    d.classList.remove("active")
+  );
+
+  document.querySelectorAll(".fret").forEach(cell => {
+    if (
+      cell.dataset.string === target.string &&
+      Number(cell.dataset.fret) === target.fret
+    ) {
+      cell.querySelector(".dot").classList.add("active");
+    }
+  });
+}
+
+/* ======================
+   AUDIO
+====================== */
+
+startBtn.onclick = startListening;
+stopBtn.onclick = stopListening;
 
 async function startListening() {
   if (listening) return;
   listening = true;
 
-  if (startBtn) startBtn.disabled = true;
-  if (stopBtn) stopBtn.disabled = false;
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
 
   audioCtx = new AudioContext();
   stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -60,14 +252,11 @@ function stopListening() {
   listening = false;
 
   cancelAnimationFrame(raf);
-
   if (stream) stream.getTracks().forEach(t => t.stop());
   if (audioCtx) audioCtx.close();
 
-  if (startBtn) startBtn.disabled = false;
-  if (stopBtn) stopBtn.disabled = true;
-
-  if (statusDiv) statusDiv.textContent = "Stopped";
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
 }
 
 function listenLoop() {
@@ -80,8 +269,10 @@ function listenLoop() {
     const detected = frequencyToNote(freq);
 
     if (mode === "tuner") {
-      if (targetDiv) targetDiv.textContent = detected;
-      if (statusDiv) statusDiv.textContent = "Listening…";
+      targetDiv.textContent = detected;
+    } else if (target && detected === target.note) {
+      statusDiv.textContent = "Correct ✔";
+      pickTarget();
     }
   }
 
