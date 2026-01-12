@@ -2,68 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Fret Trainer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mandolin Trainer</title>
-
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
 
-<h1>🎻 Mandolin Trainer</h1>
+<body class="home">
 
-<div class="modes">
-  <button data-mode="practice">Practice</button>
-  <button data-mode="tuner">Tuner</button>
-  <button data-mode="game">Game</button>
-</div>
+  <h1>Fret Trainer</h1>
 
-<div class="settings">
-  <label>
-    Instrument:
-    <select id="instrumentSelect">
-      <option value="mandolin">Mandolin</option>
-      <option value="bass">Electric Bass</option>
-    </select>
-  </label>
+  <div class="home-section">
+    <h2>Mandolin</h2>
+    <a href="mandolin-practice.html">Practice</a>
+    <a href="mandolin-game.html">Game</a>
+    <a href="mandolin-tuner.html">Tuner</a>
+  </div>
 
-  <label>
-    Scale:
-    <select id="scaleSelect">
-      <option value="chromatic">Chromatic</option>
-      <option value="g">G Major</option>
-      <option value="d">D Major</option>
-      <option value="a">A Major</option>
-    </select>
-  </label>
+  <div class="home-section">
+    <h2>Electric Bass</h2>
+    <a href="bass-practice.html">Practice</a>
+    <a href="bass-game.html">Game</a>
+    <a href="bass-tuner.html">Tuner</a>
+  </div>
 
-  <label>
-    String:
-    <select id="stringSelect">
-      <option value="all">All</option>
-    </select>
-  </label>
-
-  <label>
-    Max Fret:
-    <input type="range" id="fretRange" min="1" max="6" value="6">
-    <span id="fretValue">6</span>
-  </label>
-</div>
-
-<div id="targetNote"></div>
-<div id="instruction"></div>
-
-<div id="fretboard" class="fretboard"></div>
-
-<div class="controls">
-  <button id="start">Start</button>
-  <button id="stop">Stop</button>
-</div>
-
-<div id="status"></div>
-
-<script src="pitch.js"></script>
-<script src="app.js"></script>
 </body>
 </html>
