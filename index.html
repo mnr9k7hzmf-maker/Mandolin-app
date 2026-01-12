@@ -4,26 +4,85 @@
   <meta charset="UTF-8" />
   <title>Fret Trainer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 
-<body class="home">
+<body>
 
-  <h1>Fret Trainer</h1>
+  <!-- ================= HOME ================= -->
+  <section id="home" class="screen active">
+    <h1>Fret Trainer</h1>
 
-  <div class="home-section">
-    <h2>Mandolin</h2>
-    <a href="mandolin-practice.html">Practice</a>
-    <a href="mandolin-game.html">Game</a>
-    <a href="mandolin-tuner.html">Tuner</a>
-  </div>
+    <h2>Select Instrument</h2>
+    <select id="instrumentSelect">
+      <option value="mandolin">Mandolin</option>
+      <option value="bass">Electric Bass</option>
+    </select>
 
-  <div class="home-section">
-    <h2>Electric Bass</h2>
-    <a href="bass-practice.html">Practice</a>
-    <a href="bass-game.html">Game</a>
-    <a href="bass-tuner.html">Tuner</a>
-  </div>
+    <h2>Select Mode</h2>
+    <div class="mode-buttons">
+      <button data-mode="practice">Practice</button>
+      <button data-mode="game">Game</button>
+      <button data-mode="tuner">Tuner</button>
+    </div>
+  </section>
+
+  <!-- ================= PRACTICE / GAME ================= -->
+  <section id="trainer" class="screen">
+    <button class="back">← Home</button>
+
+    <h2 id="modeTitle"></h2>
+
+    <div class="settings">
+      <label>
+        Scale:
+        <select id="scaleSelect">
+          <option value="chromatic">Chromatic</option>
+          <option value="g">G</option>
+          <option value="d">D</option>
+          <option value="a">A</option>
+        </select>
+      </label>
+
+      <label>
+        Max Fret:
+        <input type="range" id="fretRange" min="1" max="6" value="6" />
+        <span id="fretValue">6</span>
+      </label>
+    </div>
+
+    <div id="targetNote"></div>
+    <div id="instruction"></div>
+
+    <div id="fretboard"></div>
+
+    <div class="controls">
+      <button id="start">Start</button>
+      <button id="stop" disabled>Stop</button>
+    </div>
+
+    <div id="status"></div>
+  </section>
+
+  <!-- ================= TUNER ================= -->
+  <section id="tuner" class="screen">
+    <button class="back">← Home</button>
+
+    <h2>Tuner</h2>
+
+    <div id="targetNote" class="tuner-note">—</div>
+    <div id="status">Listening…</div>
+
+    <div class="controls">
+      <button id="start">Start</button>
+      <button id="stop" disabled>Stop</button>
+    </div>
+  </section>
+
+  <script src="pitch.js"></script>
+  <script src="app.js"></script>
 
 </body>
 </html>
