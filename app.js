@@ -1,6 +1,6 @@
 /********************************
  * SINGLE PAGE FRET TRAINER
- * iOS + GitHub Pages Safe
+ * Clean + iOS Safe
  ********************************/
 
 /* ======================
@@ -64,17 +64,23 @@ const scaleSelect = document.getElementById("scaleSelect");
 const fretRange = document.getElementById("fretRange");
 const fretValue = document.getElementById("fretValue");
 
-const targetDiv = document.getElementById("targetNote");
+const trainerTarget = document.getElementById("trainerTarget");
+const tunerTarget = document.getElementById("tunerTarget");
+
 const instructionDiv = document.getElementById("instruction");
-const statusDiv = document.getElementById("status");
+const trainerStatus = document.getElementById("trainerStatus");
+const tunerStatus = document.getElementById("tunerStatus");
+
 const fretboard = document.getElementById("fretboard");
 const modeTitle = document.getElementById("modeTitle");
 
-const startBtn = document.getElementById("start");
-const stopBtn = document.getElementById("stop");
+const trainerStart = document.getElementById("trainerStart");
+const trainerStop = document.getElementById("trainerStop");
+const tunerStart = document.getElementById("tunerStart");
+const tunerStop = document.getElementById("tunerStop");
 
 /* ======================
-   NAVIGATION
+   SCREEN CONTROL
 ====================== */
 
 function showScreen(id) {
@@ -85,7 +91,7 @@ function showScreen(id) {
 document.querySelectorAll(".mode-buttons button").forEach(btn => {
   btn.onclick = () => {
     mode = btn.dataset.mode;
-    showTrainer();
+    enterMode();
   };
 });
 
@@ -97,12 +103,10 @@ document.querySelectorAll(".back").forEach(btn => {
 });
 
 /* ======================
-   MODE SETUP
+   SETTINGS
 ====================== */
 
-instrumentSelect.onchange = e => {
-  instrument = e.target.value;
-};
+instrumentSelect.onchange = e => instrument = e.target.value;
 
 scaleSelect.onchange = e => {
   settings.scale = e.target.value;
@@ -115,13 +119,17 @@ fretRange.oninput = e => {
   rebuild();
 };
 
-function showTrainer() {
+/* ======================
+   MODE ENTRY
+====================== */
+
+function enterMode() {
   stopListening();
 
   if (mode === "tuner") {
     showScreen("tuner");
-    targetDiv.textContent = "—";
-    statusDiv.textContent = "Listening…";
+    tunerTarget.textContent = "—";
+    tunerStatus.textContent = "Listening…";
     return;
   }
 
@@ -133,7 +141,7 @@ function showTrainer() {
 }
 
 /* ======================
-   NOTE GENERATION
+   NOTE LOGIC
 ====================== */
 
 function rebuild() {
@@ -204,7 +212,7 @@ function pickTarget() {
   if (!notes.length) return;
 
   target = notes[Math.floor(Math.random() * notes.length)];
-  targetDiv.textContent = `Play: ${target.note}`;
+  trainerTarget.textContent = `Play: ${target.note}`;
   instructionDiv.textContent =
     `String: ${target.string} | Fret: ${target.fret}`;
 
@@ -226,15 +234,19 @@ function pickTarget() {
    AUDIO
 ====================== */
 
-startBtn.onclick = startListening;
-stopBtn.onclick = stopListening;
+trainerStart.onclick = startListening;
+trainerStop.onclick = stopListening;
+tunerStart.onclick = startListening;
+tunerStop.onclick = stopListening;
 
 async function startListening() {
   if (listening) return;
   listening = true;
 
-  startBtn.disabled = true;
-  stopBtn.disabled = false;
+  trainerStart.disabled = true;
+  trainerStop.disabled = false;
+  tunerStart.disabled = true;
+  tunerStop.disabled = false;
 
   audioCtx = new AudioContext();
   stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -255,8 +267,10 @@ function stopListening() {
   if (stream) stream.getTracks().forEach(t => t.stop());
   if (audioCtx) audioCtx.close();
 
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
+  trainerStart.disabled = false;
+  trainerStop.disabled = true;
+  tunerStart.disabled = false;
+  tunerStop.disabled = true;
 }
 
 function listenLoop() {
@@ -269,9 +283,9 @@ function listenLoop() {
     const detected = frequencyToNote(freq);
 
     if (mode === "tuner") {
-      targetDiv.textContent = detected;
+      tunerTarget.textContent = detected;
     } else if (target && detected === target.note) {
-      statusDiv.textContent = "Correct ✔";
+      trainerStatus.textContent = "Correct ✔";
       pickTarget();
     }
   }
